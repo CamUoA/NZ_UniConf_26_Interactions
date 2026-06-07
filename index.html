@@ -237,10 +237,6 @@
             <div class="uni-legend" id="uniLegend"></div>
           </div>
           <div class="dash-card">
-            <h3>Who is in the room?</h3>
-             <div id="uniBreakdown"></div>
-          </div>
-          <div class="dash-card">
             <h3>AI opportunity view</h3>
             <div class="chart-wrap"><canvas id="opportunityChart"></canvas></div>
             <div class="ticker" id="opportunityTicker"></div>
@@ -317,7 +313,7 @@
     journeyChoices:[...document.querySelectorAll("#journeyChoices .choice")], submitJourney:document.getElementById("submitJourney"), journeyThanks:document.getElementById("journeyThanks"),
     usecaseText:document.getElementById("usecaseText"), submitUsecase:document.getElementById("submitUsecase"), usecaseThanks:document.getElementById("usecaseThanks"), chips:[...document.querySelectorAll(".chip")],
     opportunityRatings:[...document.querySelectorAll("#opportunityRatings .rating")], submitOpportunity:document.getElementById("submitOpportunity"), opportunityThanks:document.getElementById("opportunityThanks"), oppThanksEmoji:document.getElementById("oppThanksEmoji"),
-    journeyBars:document.getElementById("journeyBars"), uniLegend:document.getElementById("uniLegend"), uniBreakdown:document.getElementById("uniBreakdown"),wordCloud:document.getElementById("wordCloud"), opportunityTicker:document.getElementById("opportunityTicker"), opportunityStat:document.getElementById("opportunityStat"),
+    journeyBars:document.getElementById("journeyBars"), uniLegend:document.getElementById("uniLegend"), wordCloud:document.getElementById("wordCloud"), opportunityTicker:document.getElementById("opportunityTicker"), opportunityStat:document.getElementById("opportunityStat"),
     currentStageLabel:document.getElementById("currentStageLabel"), stageBtns:[...document.querySelectorAll(".stage-btn")],
     resetAll:document.getElementById("resetAll"), refreshDemo:document.getElementById("refreshDemo")
   };
@@ -554,51 +550,6 @@ function renderLegend(rows){
           ${name} (${data.count})
         </span>`
       )
-      .join("");
-}
-function renderUniversityBreakdown(rows){
-
-  const counts = {};
-
-  rows.forEach(r => {
-    if(!r.uniShort) return;
-
-    if(!counts[r.uniShort]){
-      counts[r.uniShort] = {
-        count:0,
-        color:r.uniColor || "#94A3B8"
-      };
-    }
-
-    counts[r.uniShort].count++;
-  });
-
-  els.uniBreakdown.innerHTML =
-    Object.entries(counts)
-      .sort((a,b) => b[1].count - a[1].count)
-      .map(([name,data]) => `
-        <div style="
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          margin-bottom:10px;
-          color:white;
-          font-weight:700;
-        ">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="
-              width:12px;
-              height:12px;
-              border-radius:50%;
-              background:${data.color};
-              display:inline-block;
-            "></span>
-            ${name}
-          </div>
-
-          <strong>${data.count}</strong>
-        </div>
-      `)
       .join("");
 }
   function cleanWords(text){
