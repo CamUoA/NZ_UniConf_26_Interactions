@@ -372,13 +372,14 @@ function routeAudienceToStage(){
 
   const profile = getProfile();
 
-  // First-time visitor lands on Start
+  // No profile saved yet = show Start page
   if(!profile){
     showView("home");
     return;
   }
 
-  // Presenter has not opened the first question yet
+  // Profile exists, but presenter has only opened profile collection
+  // so attendee should wait for the first question.
   if(currentStage === "profile"){
     showView("locked");
     return;
@@ -394,7 +395,6 @@ function routeAudienceToStage(){
     return;
   }
 
-  // Returning user goes straight to active question
   showView(currentStage);
 }
 
@@ -447,7 +447,7 @@ els.saveProfile.addEventListener("click", () => {
     role:selectedRole || ""
   });
 
-  routeAudienceToStage();
+  showView("locked");
 });
 
   function renderProfilePill(){
