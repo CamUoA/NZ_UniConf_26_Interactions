@@ -372,20 +372,20 @@ function routeAudienceToStage(){
 
   const profile = getProfile();
 
-  // First-time visitor
+  // First-time visitor lands on Start
   if(!profile){
     showView("home");
     return;
   }
 
-  // Profile already exists
-  if(currentStage === "closed"){
+  // Presenter has not opened the first question yet
+  if(currentStage === "profile"){
     showView("locked");
     return;
   }
 
-  if(currentStage === "profile"){
-    showView("home");
+  if(currentStage === "closed"){
+    showView("locked");
     return;
   }
 
@@ -394,7 +394,7 @@ function routeAudienceToStage(){
     return;
   }
 
-  // Existing user goes straight to active question
+  // Returning user goes straight to active question
   showView(currentStage);
 }
 
