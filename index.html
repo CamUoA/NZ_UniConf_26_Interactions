@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>AI in Finance | Conference Interactions</title>
+  <meta name="description" content="Live audience interaction app for AI in Finance conference session." />
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      --navy:#003058;--blue:#006fae;--teal:#009ac7;--sky:#a8cede;--text:#0d1b2a;--muted:#5d7182;--line:#d8e3ea;--surface:#f5f9fb;--white:#fff;--ink:#101827;--green:#64a70b;--gold:#f2a900;--purple:#6366f1;
+      --bg:#0d1b2a;--dark-card:#111827;--dark-card-2:#172033;
+      --r1:#ef4444;--r2:#f97316;--r3:#eab308;--r4:#84cc16;--r5:#22c55e;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:'DM Sans',Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f5f9fb,#fff);line-height:1.45}
+    button,input,textarea{font:inherit}
+    .app{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:22px 0 44px}
+    .topbar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border:1px solid var(--line);border-top:0;border-radius:0 0 24px 24px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 12px 40px rgba(0,48,88,.08)}
+    .brand{color:var(--navy);font-weight:900;letter-spacing:-.02em;line-height:1.1}
+    .brand small{display:block;color:var(--muted);font-weight:700;font-size:12px;margin-top:2px}
+    .profile-pill{display:none;align-items:center;gap:8px;margin-top:7px;color:var(--muted);font-size:12px;font-weight:800}
+    .profile-dot{width:12px;height:12px;border-radius:50%;background:var(--uni-color,#94A3B8);display:inline-block}
+    .tabs{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+    .tab{border:1px solid var(--line);background:white;color:var(--muted);padding:9px 13px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:900}
+    .tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+    .tab.locked{opacity:.42;cursor:not-allowed}
+    .hero{margin-top:22px;min-height:58vh;padding:clamp(28px,6vw,70px);border-radius:34px;background:radial-gradient(circle at 85% 12%,rgba(0,154,199,.35),transparent 28%),linear-gradient(135deg,var(--navy),#08476d 68%,#0b6f91);color:white;box-shadow:0 22px 70px rgba(0,48,88,.2);display:grid;align-items:center;overflow:hidden}
+    .eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:900;color:var(--teal);margin-bottom:12px}
+    .hero .eyebrow{color:var(--sky)}
+    h1{font-size:clamp(44px,7vw,86px);line-height:.98;letter-spacing:-.06em;margin:0 0 20px;max-width:950px}
+    h2{font-size:clamp(34px,4.8vw,64px);line-height:1.02;letter-spacing:-.055em;color:var(--navy);margin:0 0 20px}
+    h3{color:var(--navy);font-size:24px;margin:0 0 12px;line-height:1.08}
+    p.lead{color:var(--muted);font-size:clamp(18px,2vw,25px);max-width:850px;margin:0 0 30px}
+    .hero p{color:#d6eff7;font-size:clamp(19px,2.2vw,28px);max-width:820px;margin:0}
+    .view{display:none}.view.active{display:block}
+    .panel{margin-top:22px;background:white;border:1px solid var(--line);border-radius:30px;padding:clamp(22px,4vw,42px);box-shadow:0 18px 55px rgba(0,48,88,.08)}
+    .locked-panel{text-align:center;padding:60px 28px}
+    .locked-icon{font-size:70px;margin-bottom:16px}
+    .uni-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px}
+    .uni-card{border:2px solid var(--line);background:white;border-radius:24px;padding:20px;cursor:pointer;text-align:left;transition:.18s ease;position:relative;overflow:hidden;min-height:130px}
+    .uni-card:before{content:"";position:absolute;left:0;top:0;right:0;height:10px;background:var(--uni-color)}
+    .uni-card:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,48,88,.10)}
+    .uni-card.selected{border-color:var(--uni-color);box-shadow:0 0 0 5px color-mix(in srgb,var(--uni-color) 18%, transparent)}
+    .uni-short{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;color:var(--muted);margin-bottom:12px}
+    .uni-swatch{width:14px;height:14px;border-radius:50%;background:var(--uni-color)}
+    .uni-name{display:block;font-size:23px;font-weight:900;color:var(--navy);line-height:1.05;letter-spacing:-.03em}
+    .role-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+    .role-card{border:1px solid var(--line);border-radius:16px;background:#f7fbfd;color:var(--navy);padding:14px;cursor:pointer;font-weight:900}
+    .role-card.selected{background:var(--navy);color:white;border-color:var(--navy)}
+    .choice-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:26px}
+    .choice{min-height:190px;border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:24px;padding:22px;cursor:pointer;text-align:left;transition:.18s ease;box-shadow:0 12px 32px rgba(0,48,88,.05);position:relative;overflow:hidden}
+    .choice:before{content:attr(data-num);display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--teal);color:white;font-weight:900;margin-bottom:18px}
+    .choice:hover{transform:translateY(-3px);border-color:var(--teal)}
+    .choice.selected{border:3px solid var(--teal);background:linear-gradient(180deg,#effbff,#fff)}
+    .choice strong{display:block;font-size:24px;letter-spacing:-.035em;line-height:1.05;margin-bottom:10px}
+    .choice span{color:var(--muted);font-weight:600}
+    .primary{width:100%;margin-top:20px;border:0;border-radius:18px;min-height:58px;background:var(--teal);color:white;font-weight:900;cursor:pointer;box-shadow:0 16px 38px rgba(0,154,199,.25)}
+    .primary:disabled{opacity:.42;cursor:not-allowed;box-shadow:none}
+    .textarea{width:100%;min-height:140px;resize:vertical;border:2px solid var(--line);border-radius:24px;padding:20px;outline:none;font-size:20px;color:var(--navy)}
+    .textarea:focus{border-color:var(--teal);box-shadow:0 0 0 5px rgba(0,154,199,.12)}
+    .prompt-examples{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 22px}
+    .chip{border:1px solid var(--line);background:#f7fbfd;color:var(--navy);border-radius:999px;padding:8px 12px;font-weight:800;font-size:13px;cursor:pointer}
+    .ratings{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:28px}
+    .rating{min-height:140px;border:1px solid var(--line);background:white;border-radius:24px;cursor:pointer;display:grid;place-items:center;padding:16px;text-align:center;transition:.18s ease}
+    .rating:hover{transform:translateY(-3px)}
+    .rating.selected{border:3px solid var(--rating-color);background:linear-gradient(180deg,color-mix(in srgb,var(--rating-color) 10%,#fff),#fff)}
+    .emoji{font-size:46px;line-height:1}
+    .rating strong{display:block;margin-top:8px;color:var(--navy)}
+    .rating small{display:block;color:var(--muted);font-weight:700;line-height:1.2;margin-top:5px}
+    .thanks{display:none;text-align:center;padding:40px 20px}
+    .thanks.show{display:block}.thanks .big-emoji{font-size:82px}.thanks h2{color:var(--thanks-color,var(--navy))}.thanks p{color:var(--muted);font-size:22px}
+    .dashboard{background:var(--bg);color:white;min-height:calc(100vh - 110px);border-radius:34px;padding:clamp(22px,4vw,42px);margin-top:22px;box-shadow:0 22px 70px rgba(0,48,88,.2)}
+    .dashboard h2,.dashboard h3{color:white}.dashboard .eyebrow{color:var(--sky)}.dashboard p.lead{color:#bad2df}
+    .control-panel{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:20px 0 22px}
+    .stage-btn{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:white;border-radius:16px;padding:12px 10px;font-weight:900;cursor:pointer}
+    .stage-btn.active{background:var(--teal);border-color:var(--teal);box-shadow:0 14px 30px rgba(0,154,199,.25)}
+    .stage-label{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 12px;color:#eaf6fb;font-weight:900;font-size:13px}
+    .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+    .dash-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:26px;padding:24px;min-height:270px}
+    .dash-card.wide{grid-column:1/-1}.chart-wrap{height:310px;position:relative}
+    .bar-list{display:grid;gap:12px;margin-top:10px}
+    .bar-row{display:grid;grid-template-columns:180px 1fr 58px;gap:12px;align-items:center;color:#eaf6fb;font-weight:800}
+    .bar-bg{height:18px;background:rgba(255,255,255,.09);border-radius:999px;overflow:hidden}.bar-fill{height:100%;width:0%;background:var(--teal);border-radius:999px;transition:.25s ease}
+    .uni-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .legend-pill{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);border-radius:999px;color:#eaf6fb;padding:6px 10px;font-size:12px;font-weight:900}
+    .legend-dot{width:10px;height:10px;border-radius:50%;background:var(--uni-color)}
+    .wordcloud{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;justify-content:center;min-height:230px;padding:10px}
+    .word{color:white;font-weight:900;line-height:1;padding:8px 10px;border-radius:12px;background:var(--uni-color,#64748b)}
+    .ticker{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .ticker span{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:24px}
+    .stat-line{font-size:clamp(24px,3vw,42px);font-weight:900;line-height:1.05;letter-spacing:-.04em;color:white;margin-top:12px}
+    .reset-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .danger,.secondary{border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:11px 14px;color:white;font-weight:900;cursor:pointer}.danger{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.35)}.secondary{background:rgba(255,255,255,.08)}
+    .setup{display:none;position:fixed;inset:0;background:rgba(13,27,42,.94);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(16px)}
+    .setup.show{display:flex}.setup-card{background:white;border-radius:28px;padding:30px;width:min(760px,100%);box-shadow:0 24px 80px rgba(0,0,0,.28)}.setup-card h2{font-size:42px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}.field label{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:900;margin-bottom:6px}.field input{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none}.field input:focus{border-color:var(--teal)}
+    .setup-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}.setup-actions button{border:0;border-radius:14px;padding:12px 15px;font-weight:900;cursor:pointer}.save{background:var(--teal);color:white}.demo{background:#edf8fc;color:var(--navy)}
+    .status{color:var(--muted);font-size:13px;margin-top:12px}.error{display:none;margin-top:12px;border:1px solid #fecaca;background:#fff1f2;color:#991b1b;padding:12px;border-radius:12px}.error.show{display:block}
+    @media(max-width:980px){.topbar{align-items:stretch;flex-direction:column}.tabs{justify-content:flex-start}.choice-grid,.dash-grid,.form-grid,.ratings,.uni-grid,.role-grid,.control-panel{grid-template-columns:1fr}.bar-row{grid-template-columns:120px 1fr 40px}h1{font-size:44px}}
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <div class="topbar">
+      <div class="brand">
+        AI in Finance | Live audience interactions
+        <small>Waipapa Taumata Rau | University of Auckland</small>
+        <span class="profile-pill" id="profilePill"><span class="profile-dot"></span><span id="profileText"></span></span>
+      </div>
+      <div class="tabs" id="participantTabs">
+        <button class="tab active" data-view="home">Start</button>
+        <button class="tab" data-view="profile">Your Uni</button>
+        <button class="tab" data-view="journey">Journey Poll</button>
+        <button class="tab" data-view="usecase">Use-case Wall</button>
+        <button class="tab" data-view="opportunity">Opportunity</button>
+        <button class="tab presenter-only" data-view="dashboard" style="display:none;">Presenter</button>
+      </div>
+    </div>
+
+    <section class="view active" id="homeView">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">NZ Universities Finance Conference | 2026</div>
+          <h1>Where is Finance really at with AI?</h1>
+          <p>Three quick interactions: where teams are on the journey, which Finance processes need help, and how much opportunity the sector sees ahead.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="eyebrow">Start here</div>
+        <h2>Follow the presenter.</h2>
+        <p class="lead">The active question will open automatically during the session. At the end, all questions can be reopened for updates.</p><p class="lead" style="font-size:18px;margin-top:-14px;">Presenter dashboard: open this same URL with <strong>#dashboard</strong> at the end.</p>
+        <button class="primary" onclick="showView('profile')">Select university</button>
+      </div>
+    </section>
+
+    <section class="view" id="lockedView">
+      <div class="panel locked-panel">
+        <div class="locked-icon">⏳</div>
+        <div class="eyebrow">Not open yet</div>
+        <h2>This question will open shortly.</h2>
+        <p class="lead" style="margin-left:auto;margin-right:auto;">Please follow along with the presenter. The next interaction will appear here when voting opens.</p>
+      </div>
+    </section>
+
+    <section class="view" id="profileView">
+      <div class="panel">
+        <div class="eyebrow">Participant profile</div>
+        <h2>Which university are you from?</h2>
+        <p class="lead">Choose the institution you are representing today.</p>
+        <div class="uni-grid" id="uniGrid"></div>
+        <div style="margin-top:34px;">
+          <div class="eyebrow">Optional</div>
+          <h3>What best describes your role?</h3>
+          <p class="lead" style="font-size:18px;margin-bottom:12px;">You can edit this list later in the code.</p>
+          <div class="role-grid" id="roleGrid"></div>
+        </div>
+        <button class="primary" id="saveProfile" disabled>Save and continue</button>
+      </div>
+    </section>
+
+    <section class="view" id="journeyView">
+      <div class="panel">
+        <div class="eyebrow">Opening poll</div>
+        <h2>Where is your Finance team on the AI journey?</h2>
+        <p class="lead">Pick the option that best describes where your team is today.</p>
+        <div class="choice-grid" id="journeyChoices">
+          <button class="choice" data-num="1" data-value="Learning"><strong>Learning</strong><span>Trying ChatGPT or Copilot, learning prompts, building confidence.</span></button>
+          <button class="choice" data-num="2" data-value="Everyday Productivity"><strong>Everyday Productivity</strong><span>Using AI for summaries, emails, meetings, Excel help and first drafts.</span></button>
+          <button class="choice" data-num="3" data-value="Advanced Productivity"><strong>Advanced Productivity</strong><span>Using AI for SQL, DAX, modelling, documentation and technical analysis.</span></button>
+          <button class="choice" data-num="4" data-value="Team & Process Redesign"><strong>Team & Process Redesign</strong><span>Starting to redesign workflows, triage, validation and knowledge access.</span></button>
+        </div>
+        <button class="primary" id="submitJourney" disabled>Submit / update my answer</button>
+        <div class="thanks" id="journeyThanks"><div class="big-emoji">📍</div><h2>Thanks — your answer is in.</h2><p>You can update it later if the presenter reopens all questions.</p></div>
+      </div>
+    </section>
+
+    <section class="view" id="usecaseView">
+      <div class="panel">
+        <div class="eyebrow">Use-case wall</div>
+        <h2>What Finance process would you most like AI to improve?</h2>
+        <p class="lead">One practical idea. No need to overthink it.</p>
+        <div class="prompt-examples">
+          <button class="chip">Journals</button><button class="chip">Forecasting</button><button class="chip">Approvals</button><button class="chip">Reporting</button><button class="chip">Reconciliations</button><button class="chip">Procurement</button><button class="chip">Policy questions</button><button class="chip">Inbox triage</button>
+        </div>
+        <textarea class="textarea" id="usecaseText" maxlength="120" placeholder="Example: shared inbox triage, journals, forecasting, policy questions..."></textarea>
+        <button class="primary" id="submitUsecase" disabled>Submit / update idea</button>
+        <div class="thanks" id="usecaseThanks"><div class="big-emoji">💡</div><h2>Got it.</h2><p>Your idea is on the live wall.</p></div>
+      </div>
+    </section>
+
+    <section class="view" id="opportunityView">
+      <div class="panel">
+        <div class="eyebrow">Closing poll</div>
+        <h2>How much opportunity do you think AI represents for Finance?</h2>
+        <p class="lead">Not whether the presentation landed — where you think the sector is heading.</p>
+        <div class="ratings" id="opportunityRatings">
+          <button class="rating" data-value="1" style="--rating-color:var(--r1)"><span class="emoji">🤏</span><strong>Small</strong><small>Incremental gains</small></button>
+          <button class="rating" data-value="2" style="--rating-color:var(--r2)"><span class="emoji">🙂</span><strong>Moderate</strong><small>Useful productivity</small></button>
+          <button class="rating" data-value="3" style="--rating-color:var(--r3)"><span class="emoji">😄</span><strong>Significant</strong><small>Better workflows</small></button>
+          <button class="rating" data-value="4" style="--rating-color:var(--r4)"><span class="emoji">🚀</span><strong>Transformational</strong><small>Process redesign</small></button>
+          <button class="rating" data-value="5" style="--rating-color:var(--r5)"><span class="emoji">🤖</span><strong>Fundamental</strong><small>Operating model shift</small></button>
+        </div>
+        <button class="primary" id="submitOpportunity" disabled>Submit / update view</button>
+        <div class="thanks" id="opportunityThanks"><div class="big-emoji" id="oppThanksEmoji">🚀</div><h2 id="oppThanksHeading">Thanks — your view is in.</h2><p id="oppThanksBody">We'll show the room's view of the opportunity.</p></div>
+      </div>
+    </section>
+
+    <section class="view" id="dashboardView">
+      <div class="dashboard">
+        <div class="eyebrow">Presenter dashboard</div>
+        <h2>Live sector view</h2>
+        <p class="lead">Use this on the projector. Control which question is open to the audience.</p>
+
+        <div class="stage-label">Current audience stage: <span id="currentStageLabel">Loading…</span></div>
+
+        <div class="control-panel">
+          <button class="stage-btn" data-stage="profile">Open Profile</button>
+          <button class="stage-btn" data-stage="journey">Open Journey</button>
+          <button class="stage-btn" data-stage="usecase">Open Use-case</button>
+          <button class="stage-btn" data-stage="opportunity">Open Opportunity</button>
+          <button class="stage-btn" data-stage="open">Open All</button>
+          <button class="stage-btn" data-stage="closed">Close Voting</button>
+        </div>
+
+        <div class="dash-grid">
+          <div class="dash-card">
+            <h3>Where teams are on the AI journey</h3>
+            <div class="bar-list" id="journeyBars"></div>
+            <div class="uni-legend" id="uniLegend"></div>
+          </div>
+          <div class="dash-card">
+            <h3>AI opportunity view</h3>
+            <div class="chart-wrap"><canvas id="opportunityChart"></canvas></div>
+            <div class="ticker" id="opportunityTicker"></div>
+            <div class="stat-line" id="opportunityStat">Waiting for responses…</div>
+          </div>
+          <div class="dash-card wide">
+            <h3>Finance AI use-case wall</h3>
+            <div class="wordcloud" id="wordCloud"></div>
+          </div>
+        </div>
+        <div class="reset-row">
+          <button class="secondary" id="refreshDemo">Add demo data</button>
+          <button class="danger" id="resetAll">Reset all responses</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+  import { getDatabase, ref, push, set, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+  const SESSION_ID = "uoa-finance-ai-conference-2026-v3-gated";
+  const CONFIG_KEY = "uoa_ai_interactions_firebase_config";
+  const PROFILE_KEY = `${SESSION_ID}_profile`;
+  const voteKeys = { journey:`${SESSION_ID}_journey_done`, usecase:`${SESSION_ID}_usecase_done`, opportunity:`${SESSION_ID}_opportunity_done` };
+
+  const UNIVERSITIES = [
+    { id:"auckland", short:"Auckland", name:"University of Auckland", color:"#00467F" },
+    { id:"otago", short:"Otago", name:"University of Otago", color:"#DAA520" },
+    { id:"massey", short:"Massey", name:"Massey University", color:"#00B5E2" },
+    { id:"canterbury", short:"Canterbury", name:"University of Canterbury", color:"#A6192E" },
+    { id:"waikato", short:"Waikato", name:"University of Waikato", color:"#FFB81C" },
+    { id:"victoria", short:"Victoria", name:"Victoria University of Wellington", color:"#115E33" },
+    { id:"aut", short:"AUT", name:"Auckland University of Technology", color:"#231F20" },
+    { id:"lincoln", short:"Lincoln", name:"Lincoln University", color:"#007A87" },
+    { id:"other", short:"Other", name:"Other / not listed", color:"#94A3B8" }
+  ];
+
+  const ROLES = [
+    "CFO / Director",
+    "Finance Leadership",
+    "Finance Business Partner",
+    "Management Accountant",
+    "Financial Accountant",
+    "Planning & Analysis",
+    "Data / BI / Systems",
+    "Other"
+  ];
+
+  const journeyOptions = ["Learning","Everyday Productivity","Advanced Productivity","Team & Process Redesign"];
+  const opportunityMeta = {
+    1:{emoji:"🤏",label:"Small",color:"#ef4444"},
+    2:{emoji:"🙂",label:"Moderate",color:"#f97316"},
+    3:{emoji:"😄",label:"Significant",color:"#eab308"},
+    4:{emoji:"🚀",label:"Transformational",color:"#84cc16"},
+    5:{emoji:"🤖",label:"Fundamental",color:"#22c55e"}
+  };
+  const stageLabels = {
+    profile:"Profile / University selection",
+    journey:"Journey Poll",
+    usecase:"Use-case Wall",
+    opportunity:"AI Opportunity Poll",
+    open:"All questions open",
+    closed:"Voting closed"
+  };
+
+  const els = {
+    setupOverlay:null, setupError:null, saveConfigBtn:null, demoModeBtn:null,
+    tabs:[...document.querySelectorAll(".tab")],
+    views:{home:document.getElementById("homeView"),locked:document.getElementById("lockedView"),profile:document.getElementById("profileView"),journey:document.getElementById("journeyView"),usecase:document.getElementById("usecaseView"),opportunity:document.getElementById("opportunityView"),dashboard:document.getElementById("dashboardView")},
+    uniGrid:document.getElementById("uniGrid"), roleGrid:document.getElementById("roleGrid"), saveProfile:document.getElementById("saveProfile"), profilePill:document.getElementById("profilePill"), profileText:document.getElementById("profileText"),
+    journeyChoices:[...document.querySelectorAll("#journeyChoices .choice")], submitJourney:document.getElementById("submitJourney"), journeyThanks:document.getElementById("journeyThanks"),
+    usecaseText:document.getElementById("usecaseText"), submitUsecase:document.getElementById("submitUsecase"), usecaseThanks:document.getElementById("usecaseThanks"), chips:[...document.querySelectorAll(".chip")],
+    opportunityRatings:[...document.querySelectorAll("#opportunityRatings .rating")], submitOpportunity:document.getElementById("submitOpportunity"), opportunityThanks:document.getElementById("opportunityThanks"), oppThanksEmoji:document.getElementById("oppThanksEmoji"),
+    journeyBars:document.getElementById("journeyBars"), uniLegend:document.getElementById("uniLegend"), wordCloud:document.getElementById("wordCloud"), opportunityTicker:document.getElementById("opportunityTicker"), opportunityStat:document.getElementById("opportunityStat"),
+    currentStageLabel:document.getElementById("currentStageLabel"), stageBtns:[...document.querySelectorAll(".stage-btn")],
+    resetAll:document.getElementById("resetAll"), refreshDemo:document.getElementById("refreshDemo")
+  };
+
+  let db=null, refs={}, demoData={journey:[],usecases:[],opportunity:[]};
+  let selectedUni=null, selectedRole=null, selectedJourney=null, selectedOpportunity=null, opportunityChart=null;
+  let currentStage = "profile";
+  let isPresenter = location.hash.toLowerCase().includes("dashboard") || location.hash.toLowerCase().includes("presenter");
+
+  window.showView = showView;
+
+  function canAccessView(name){
+    if(isPresenter || name === "dashboard") return true;
+    if(name === "home" || name === "profile") return currentStage === "profile" || currentStage === "open";
+    if(currentStage === "open") return ["home","profile","journey","usecase","opportunity"].includes(name);
+    return name === currentStage;
+  }
+
+  function showView(name){
+    if(name !== "profile" && name !== "home" && name !== "dashboard" && !getProfile()){
+      name = "profile";
+    }
+    if(!canAccessView(name)){
+      name = "locked";
+    }
+    els.tabs.forEach(t => t.classList.toggle("active", t.dataset.view === name));
+    Object.entries(els.views).forEach(([key,view]) => view.classList.toggle("active", key === name));
+    setTimeout(()=>opportunityChart?.resize(),60);
+  }
+
+  function updateTabLocks(){
+    els.tabs.forEach(tab => {
+      const name = tab.dataset.view;
+      const locked = !canAccessView(name);
+      tab.classList.toggle("locked", locked);
+    });
+  }
+
+  function routeAudienceToStage(){
+    if(isPresenter) return;
+    if(currentStage === "closed"){ showView("locked"); return; }
+    if(currentStage === "open"){ showView(getProfile() ? "journey" : "profile"); return; }
+    showView(currentStage);
+  }
+
+  els.tabs.forEach(tab => tab.addEventListener("click", () => showView(tab.dataset.view)));
+
+  function getUniversity(id){ return UNIVERSITIES.find(u => u.id === id) || UNIVERSITIES.find(u => u.id === "other"); }
+  function getProfile(){ try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || "null"); } catch { return null; } }
+  function setProfile(profile){ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); renderProfilePill(); }
+
+  function renderProfileUI(){
+    els.uniGrid.innerHTML = UNIVERSITIES.map(u => `
+      <button class="uni-card" data-id="${u.id}" style="--uni-color:${u.color}">
+        <span class="uni-short"><span class="uni-swatch"></span>${u.short}</span>
+        <span class="uni-name">${u.name}</span>
+      </button>`).join("");
+    els.roleGrid.innerHTML = ROLES.map(r => `<button class="role-card" data-role="${r}">${r}</button>`).join("");
+
+    [...els.uniGrid.querySelectorAll(".uni-card")].forEach(btn => btn.addEventListener("click", () => {
+      selectedUni = btn.dataset.id;
+      [...els.uniGrid.querySelectorAll(".uni-card")].forEach(b => b.classList.toggle("selected", b === btn));
+      els.saveProfile.disabled = !selectedUni;
+    }));
+    [...els.roleGrid.querySelectorAll(".role-card")].forEach(btn => btn.addEventListener("click", () => {
+      selectedRole = btn.dataset.role;
+      [...els.roleGrid.querySelectorAll(".role-card")].forEach(b => b.classList.toggle("selected", b === btn));
+    }));
+
+    const profile = getProfile();
+    if(profile?.uniId){
+      selectedUni = profile.uniId;
+      selectedRole = profile.role || null;
+      const uniBtn = els.uniGrid.querySelector(`[data-id="${selectedUni}"]`);
+      if(uniBtn) uniBtn.classList.add("selected");
+      const roleBtn = els.roleGrid.querySelector(`[data-role="${selectedRole}"]`);
+      if(roleBtn) roleBtn.classList.add("selected");
+      els.saveProfile.disabled = false;
+    }
+  }
+
+  els.saveProfile.addEventListener("click", () => {
+    if(!selectedUni) return;
+    const uni = getUniversity(selectedUni);
+    setProfile({ uniId:selectedUni, uniShort:uni.short, uniName:uni.name, uniColor:uni.color, role:selectedRole || "" });
+    if(currentStage === "profile") showView("locked");
+    else routeAudienceToStage();
+  });
+
+  function renderProfilePill(){
+    const profile = getProfile();
+    if(!profile){ els.profilePill.style.display = "none"; return; }
+    els.profilePill.style.display = "inline-flex";
+    els.profilePill.style.setProperty("--uni-color", profile.uniColor);
+    els.profileText.textContent = `${profile.uniShort}${profile.role ? " · " + profile.role : ""}`;
+  }
+
+  function getSavedConfig(){ try { return JSON.parse(localStorage.getItem(CONFIG_KEY) || "null"); } catch { return null; } }
+  function validConfig(c){ return c && c.apiKey && c.authDomain && c.databaseURL && c.projectId; }
+  function showSetup(message=""){
+    console.error(message || "Firebase setup error");
+  }
+  function saveConfig(){
+    // Setup screen removed in production version.
+  }
+  function connectFirebase(config){
+    try{
+      const app=initializeApp(config); db=getDatabase(app);
+      refs={
+        journey:ref(db,`sessions/${SESSION_ID}/journey`),
+        usecases:ref(db,`sessions/${SESSION_ID}/usecases`),
+        opportunity:ref(db,`sessions/${SESSION_ID}/opportunity`),
+        stage:ref(db,`sessions/${SESSION_ID}/control/currentStage`)
+      };
+      onValue(refs.journey,snap=>renderJourney(Object.values(snap.val()||{})));
+      onValue(refs.usecases,snap=>renderUsecases(Object.values(snap.val()||{})));
+      onValue(refs.opportunity,snap=>renderOpportunity(Object.values(snap.val()||{})));
+      onValue(refs.stage,snap=>{
+        const value = snap.val();
+        currentStage = value || "profile";
+        renderStageControl();
+        updateTabLocks();
+        routeAudienceToStage();
+      });
+      set(refs.stage, currentStage).catch(()=>{});
+    }catch(e){ console.error(e); showSetup("Could not connect to Firebase. Check your config and database rules."); }
+  }
+  function enableDemoMode(){ renderAllDemo(); renderStageControl(); updateTabLocks(); }
+  function renderAllDemo(){ renderJourney(demoData.journey); renderUsecases(demoData.usecases); renderOpportunity(demoData.opportunity); }
+
+  function renderStageControl(){
+    els.currentStageLabel.textContent = stageLabels[currentStage] || currentStage;
+    els.stageBtns.forEach(btn => btn.classList.toggle("active", btn.dataset.stage === currentStage));
+  }
+
+  els.stageBtns.forEach(btn => btn.addEventListener("click", async () => {
+    const stage = btn.dataset.stage;
+    currentStage = stage;
+    renderStageControl();
+    updateTabLocks();
+    if(refs.stage) await set(refs.stage, stage);
+  }));
+
+  function payloadWithProfile(payload){
+    const p = getProfile() || {};
+    return { ...payload, uniId:p.uniId||"unknown", uniShort:p.uniShort||"Unknown", uniColor:p.uniColor||"#94A3B8", role:p.role||"" };
+  }
+  async function write(kind,payload){
+    const row = payloadWithProfile(payload);
+    if(refs[kind]) await push(refs[kind], { ...row, createdAt:serverTimestamp() });
+    else { demoData[kind].push({ ...row, createdAt:Date.now() }); renderAllDemo(); }
+  }
+
+  els.journeyChoices.forEach(btn => btn.addEventListener("click", () => {
+    selectedJourney = btn.dataset.value;
+    els.journeyChoices.forEach(b => b.classList.toggle("selected", b === btn));
+    els.submitJourney.disabled = false;
+  }));
+  els.submitJourney.addEventListener("click", async () => {
+    if(!selectedJourney) return;
+    await write("journey", { value:selectedJourney });
+    localStorage.setItem(voteKeys.journey, selectedJourney);
+    els.journeyThanks.classList.add("show");
+  });
+
+  els.chips.forEach(chip => chip.addEventListener("click", () => { els.usecaseText.value=chip.textContent; els.submitUsecase.disabled=false; }));
+  els.usecaseText.addEventListener("input", () => els.submitUsecase.disabled = els.usecaseText.value.trim().length < 2);
+  els.submitUsecase.addEventListener("click", async () => {
+    const text=els.usecaseText.value.trim().slice(0,120); if(!text) return;
+    await write("usecases", { text });
+    localStorage.setItem(voteKeys.usecase,"1");
+    els.usecaseThanks.classList.add("show");
+  });
+
+  els.opportunityRatings.forEach(btn => btn.addEventListener("click", () => {
+    selectedOpportunity=Number(btn.dataset.value);
+    els.opportunityRatings.forEach(b => b.classList.toggle("selected", b === btn));
+    els.submitOpportunity.disabled=false;
+  }));
+  els.submitOpportunity.addEventListener("click", async () => {
+    if(!selectedOpportunity) return;
+    await write("opportunity", { rating:selectedOpportunity });
+    localStorage.setItem(voteKeys.opportunity, String(selectedOpportunity));
+    els.oppThanksEmoji.textContent = opportunityMeta[selectedOpportunity].emoji;
+    els.opportunityThanks.classList.add("show");
+  });
+
+  function renderJourney(rows){
+    const total=rows.length||0;
+    els.journeyBars.innerHTML=journeyOptions.map(opt=>{
+      const count=rows.filter(r=>r.value===opt).length; const pct=total?Math.round(count/total*100):0;
+      return `<div class="bar-row"><div>${opt}</div><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div><div>${count}</div></div>`;
+    }).join("");
+    renderLegend(rows);
+  }
+  function renderLegend(rows){
+    const seen = {};
+    rows.forEach(r => { if(r.uniShort) seen[r.uniShort] = r.uniColor || "#94A3B8"; });
+    els.uniLegend.innerHTML = Object.entries(seen).map(([name,color]) => `<span class="legend-pill" style="--uni-color:${color}"><span class="legend-dot"></span>${name}</span>`).join("");
+  }
+  function cleanWords(text){
+    return text.toLowerCase().replace(/[^\w\s-]/g," ").split(/\s+/).filter(w => w.length>2 && !["the","and","for","with","our","from","that","this","into","how","would","could","should","finance"].includes(w));
+  }
+  function renderUsecases(rows){
+    const counts={};
+    rows.forEach(r => cleanWords(r.text||"").forEach(w => {
+      if(!counts[w]) counts[w] = {count:0, color:r.uniColor||"#64748b"};
+      counts[w].count += 1;
+    }));
+    const items=Object.entries(counts).sort((a,b)=>b[1].count-a[1].count).slice(0,34);
+    if(!items.length){ els.wordCloud.innerHTML=`<span style="color:#bad2df;font-size:24px;">Waiting for ideas…</span>`; return; }
+    const max=Math.max(...items.map(i=>i[1].count));
+    els.wordCloud.innerHTML=items.map(([word,data]) => {
+      const size=18+Math.round((data.count/max)*42); const opacity=.72+(data.count/max)*.28;
+      return `<span class="word" style="--uni-color:${data.color};font-size:${size}px;opacity:${opacity}">${word}</span>`;
+    }).join("");
+  }
+  function rollingAverage(values, window=5){
+    return values.map((_,idx)=>{ const slice=values.slice(Math.max(0,idx-window+1),idx+1); return slice.reduce((a,b)=>a+b,0)/slice.length; });
+  }
+  function initChart(){
+    const ctx=document.getElementById("opportunityChart");
+    opportunityChart=new Chart(ctx,{type:"line",data:{labels:[],datasets:[{data:[],borderColor:"#009ac7",backgroundColor:"rgba(0,154,199,.18)",fill:true,tension:.36,borderWidth:4,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:"rgba(255,255,255,.05)"},ticks:{color:"#bad2df",maxTicksLimit:8}},y:{min:1,max:5,ticks:{stepSize:1,color:"#bad2df",callback:v=>`${opportunityMeta[v]?.emoji||""} ${v}`},grid:{color:"rgba(255,255,255,.08)"}}}}});
+  }
+  function renderOpportunity(rows){
+    const ratings=rows.map(r=>Number(r.rating)).filter(r=>r>=1&&r<=5);
+    const worm=rollingAverage(ratings);
+    opportunityChart.data.labels=worm.map((_,i)=>String(i+1)); opportunityChart.data.datasets[0].data=worm; opportunityChart.update();
+    els.opportunityTicker.innerHTML=ratings.slice(-10).map(r=>`<span>${opportunityMeta[r].emoji}</span>`).join("") || `<span>—</span>`;
+    const big = ratings.filter(r => r>=4).length;
+    const pct = ratings.length ? Math.round(big/ratings.length*100) : 0;
+    els.opportunityStat.textContent = ratings.length ? `${pct}% see AI as transformational or fundamental for Finance` : "Waiting for responses…";
+  }
+
+  els.resetAll.addEventListener("click", async () => {
+    if(!confirm("Reset all conference responses?")) return;
+    if(refs.journey){ await remove(refs.journey); await remove(refs.usecases); await remove(refs.opportunity); }
+    else { demoData={journey:[],usecases:[],opportunity:[]}; renderAllDemo(); }
+  });
+  els.refreshDemo.addEventListener("click", () => {
+    const demoProfiles = [
+      {uniId:"auckland",uniShort:"Auckland",uniColor:"#00467F",role:"Finance Leadership"},
+      {uniId:"canterbury",uniShort:"Canterbury",uniColor:"#A6192E",role:"Business Partner"},
+      {uniId:"otago",uniShort:"Otago",uniColor:"#DAA520",role:"Management Accountant"},
+      {uniId:"victoria",uniShort:"Victoria",uniColor:"#115E33",role:"Data / BI / Systems"}
+    ];
+    demoData.journey.push(...demoProfiles.map((p,i)=>({...p,value:journeyOptions[i%4]})));
+    demoData.usecases.push(
+      {...demoProfiles[0],text:"shared inbox triage"}, {...demoProfiles[1],text:"journals validation"},
+      {...demoProfiles[2],text:"forecasting"}, {...demoProfiles[3],text:"policy questions"},
+      {...demoProfiles[1],text:"reconciliations"}, {...demoProfiles[0],text:"budget reporting"}
+    );
+    demoData.opportunity.push(...[{rating:3},{rating:4},{rating:4},{rating:5},{rating:4},{rating:5}].map((r,i)=>({...demoProfiles[i%demoProfiles.length],...r})));
+    renderAllDemo();
+  });
+
+  function restoreSubmittedState(){
+    // Keep forms visible so users can update after "Open All"; highlight old choices where practical.
+    const oldJourney = localStorage.getItem(voteKeys.journey);
+    if(oldJourney){
+      const btn = els.journeyChoices.find(b => b.dataset.value === oldJourney);
+      if(btn){ btn.classList.add("selected"); selectedJourney = oldJourney; els.submitJourney.disabled = false; }
+    }
+    const oldOpp = localStorage.getItem(voteKeys.opportunity);
+    if(oldOpp){
+      const btn = els.opportunityRatings.find(b => b.dataset.value === oldOpp);
+      if(btn){ btn.classList.add("selected"); selectedOpportunity = Number(oldOpp); els.submitOpportunity.disabled = false; }
+    }
+  }
+
+  renderProfileUI(); renderProfilePill(); initChart(); restoreSubmittedState(); renderStageControl(); updateTabLocks();
+
+  // Conference Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJ2aAToUGGNhjabTBKjNxkSBAuYPpfvlg",
+    authDomain: "nz-uni-fin-conf-26.firebaseapp.com",
+    projectId: "nz-uni-fin-conf-26",
+    databaseURL: "https://nz-uni-fin-conf-26-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
+
+  // Only show presenter controls when opened with #dashboard or #presenter.
+  if (isPresenter) {
+    document.querySelectorAll(".presenter-only").forEach(el => el.style.display = "");
+    showView("dashboard");
+  } else {
+    document.querySelectorAll(".presenter-only").forEach(el => el.remove());
+  }
+
+  connectFirebase(firebaseConfig);
+</script>
+</body>
+</html>
