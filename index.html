@@ -372,19 +372,20 @@ function routeAudienceToStage(){
 
   const profile = getProfile();
 
-  // No profile yet = stay on Start
+  // First-time visitor
   if(!profile){
     showView("home");
     return;
   }
 
+  // Profile already exists
   if(currentStage === "closed"){
     showView("locked");
     return;
   }
 
   if(currentStage === "profile"){
-    showView("profile");
+    showView("home");
     return;
   }
 
@@ -393,6 +394,7 @@ function routeAudienceToStage(){
     return;
   }
 
+  // Existing user goes straight to active question
   showView(currentStage);
 }
 
@@ -432,13 +434,21 @@ function routeAudienceToStage(){
     }
   }
 
-  els.saveProfile.addEventListener("click", () => {
-    if(!selectedUni) return;
-    const uni = getUniversity(selectedUni);
-    setProfile({ uniId:selectedUni, uniShort:uni.short, uniName:uni.name, uniColor:uni.color, role:selectedRole || "" });
-    if(currentStage === "profile") showView("locked");
-    else routeAudienceToStage();
+els.saveProfile.addEventListener("click", () => {
+  if(!selectedUni) return;
+
+  const uni = getUniversity(selectedUni);
+
+  setProfile({
+    uniId:selectedUni,
+    uniShort:uni.short,
+    uniName:uni.name,
+    uniColor:uni.color,
+    role:selectedRole || ""
   });
+
+  routeAudienceToStage();
+});
 
   function renderProfilePill(){
     const profile = getProfile();
