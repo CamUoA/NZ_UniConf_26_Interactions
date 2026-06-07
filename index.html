@@ -320,7 +320,22 @@
   let db=null, refs={}, demoData={journey:[],usecases:[],opportunity:[]};
   let selectedUni=null, selectedRole=null, selectedJourney=null, selectedOpportunity=null, opportunityChart=null;
   let currentStage = "profile";
-  let isPresenter = location.hash.toLowerCase().includes("dashboard") || location.hash.toLowerCase().includes("presenter");
+let isPresenter = false;
+
+if (
+  location.hash.toLowerCase().includes("dashboard") ||
+  location.hash.toLowerCase().includes("presenter")
+) {
+
+  const pin = prompt("Enter Presenter PIN");
+
+  if (pin === "UOAAI26") {
+    isPresenter = true;
+  } else {
+    alert("Access denied");
+    location.hash = "";
+  }
+}
 
   window.showView = showView;
 
