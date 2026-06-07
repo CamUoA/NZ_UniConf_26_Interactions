@@ -367,12 +367,35 @@ if (
     });
   }
 
-  function routeAudienceToStage(){
-    if(isPresenter) return;
-    if(currentStage === "closed"){ showView("locked"); return; }
-    if(currentStage === "open"){ showView(getProfile() ? "journey" : "profile"); return; }
-    showView(currentStage);
+function routeAudienceToStage(){
+
+  if(isPresenter) return;
+
+  const profile = getProfile();
+
+  // No profile yet = stay on Start
+  if(!profile){
+    showView("home");
+    return;
   }
+
+  if(currentStage === "closed"){
+    showView("locked");
+    return;
+  }
+
+  if(currentStage === "profile"){
+    showView("profile");
+    return;
+  }
+
+  if(currentStage === "open"){
+    showView("journey");
+    return;
+  }
+
+  showView(currentStage);
+}
 
   els.tabs.forEach(tab => tab.addEventListener("click", () => showView(tab.dataset.view)));
 
