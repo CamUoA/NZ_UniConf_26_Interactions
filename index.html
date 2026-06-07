@@ -174,7 +174,7 @@
         <div class="choice-grid" id="journeyChoices">
           <button class="choice" data-num="1" data-value="Learning"><strong>Learning</strong><span>Trying ChatGPT or Copilot, learning prompts, building confidence.</span></button>
           <button class="choice" data-num="2" data-value="Everyday Productivity"><strong>Everyday Productivity</strong><span>Using AI for summaries, emails, meetings, Excel help and first drafts.</span></button>
-          <button class="choice" data-num="3" data-value="Advanced Productivity"><strong>Advanced Productivity</strong><span>Using AI for SQL, DAX, modelling, documentation and technical analysis.</span></button>
+          <button class="choice" data-num="3" data-value="Advanced Productivity"><strong>Advanced Productivity</strong><span>Using AI for SQL, DAX, modelling, basic AI Agents, documentation and technical analysis.</span></button>
           <button class="choice" data-num="4" data-value="Team & Process Redesign"><strong>Team & Process Redesign</strong><span>Starting to redesign workflows, triage, validation and knowledge access.</span></button>
         </div>
         <button class="primary" id="submitJourney" disabled>Submit / update my answer</button>
@@ -235,6 +235,10 @@
             <h3>Where teams are on the AI journey</h3>
             <div class="bar-list" id="journeyBars"></div>
             <div class="uni-legend" id="uniLegend"></div>
+          </div>
+          <div class="dash-card">
+            <h3>Who is in the room?</h3>
+             <div id="uniBreakdown"></div>
           </div>
           <div class="dash-card">
             <h3>AI opportunity view</h3>
@@ -313,7 +317,7 @@
     journeyChoices:[...document.querySelectorAll("#journeyChoices .choice")], submitJourney:document.getElementById("submitJourney"), journeyThanks:document.getElementById("journeyThanks"),
     usecaseText:document.getElementById("usecaseText"), submitUsecase:document.getElementById("submitUsecase"), usecaseThanks:document.getElementById("usecaseThanks"), chips:[...document.querySelectorAll(".chip")],
     opportunityRatings:[...document.querySelectorAll("#opportunityRatings .rating")], submitOpportunity:document.getElementById("submitOpportunity"), opportunityThanks:document.getElementById("opportunityThanks"), oppThanksEmoji:document.getElementById("oppThanksEmoji"),
-    journeyBars:document.getElementById("journeyBars"), uniLegend:document.getElementById("uniLegend"), wordCloud:document.getElementById("wordCloud"), opportunityTicker:document.getElementById("opportunityTicker"), opportunityStat:document.getElementById("opportunityStat"),
+    journeyBars:document.getElementById("journeyBars"), uniLegend:document.getElementById("uniLegend"), uniBreakdown:document.getElementById("uniBreakdown"),wordCloud:document.getElementById("wordCloud"), opportunityTicker:document.getElementById("opportunityTicker"), opportunityStat:document.getElementById("opportunityStat"),
     currentStageLabel:document.getElementById("currentStageLabel"), stageBtns:[...document.querySelectorAll(".stage-btn")],
     resetAll:document.getElementById("resetAll"), refreshDemo:document.getElementById("refreshDemo")
   };
@@ -524,11 +528,79 @@ if (
     }).join("");
     renderLegend(rows);
   }
-  function renderLegend(rows){
-    const seen = {};
-    rows.forEach(r => { if(r.uniShort) seen[r.uniShort] = r.uniColor || "#94A3B8"; });
-    els.uniLegend.innerHTML = Object.entries(seen).map(([name,color]) => `<span class="legend-pill" style="--uni-color:${color}"><span class="legend-dot"></span>${name}</span>`).join("");
-  }
+function renderLegend(rows){
+
+  const counts = {};
+
+  rows.forEach(r => {
+    if(!r.uniShort) return;
+
+    if(!counts[r.uniShort]){
+      counts[r.uniShort] = {
+        count:0,
+        color:r.uniColor || "#94A3B8"
+      };
+    }
+
+    counts[r.uniShort].count++;
+  });
+
+  els.uniLegend.innerHTML =
+    Object.entries(counts)
+      .sort((a,b) => b[1].count - a[1].count)
+      .map(([name,data]) =>
+        `<span class="legend-pill" style="--uni-color:${data.color}">
+          <span class="legend-dot"></span>
+          ${name} (${data.count})
+        </span>`
+      )
+      .join("");
+}
+function renderUniversityBreakdown(rows){
+
+  const counts = {};
+
+  rows.forEach(r => {
+    if(!r.uniShort) return;
+
+    if(!counts[r.uniShort]){
+      counts[r.uniShort] = {
+        count:0,
+        color:r.uniColor || "#94A3B8"
+      };
+    }
+
+    counts[r.uniShort].count++;
+  });
+
+  els.uniBreakdown.innerHTML =
+    Object.entries(counts)
+      .sort((a,b) => b[1].count - a[1].count)
+      .map(([name,data]) => `
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          margin-bottom:10px;
+          color:white;
+          font-weight:700;
+        ">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="
+              width:12px;
+              height:12px;
+              border-radius:50%;
+              background:${data.color};
+              display:inline-block;
+            "></span>
+            ${name}
+          </div>
+
+          <strong>${data.count}</strong>
+        </div>
+      `)
+      .join("");
+}
   function cleanWords(text){
     return text.toLowerCase().replace(/[^\w\s-]/g," ").split(/\s+/).filter(w => w.length>2 && !["the","and","for","with","our","from","that","this","into","how","would","could","should","finance"].includes(w));
   }
